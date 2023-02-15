@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<link rel="stylesheet" href="styles.css">
+
+<head>
+    <title>Baxtableep</title>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="header">
+            <img class='logo' src="https://avatars.githubusercontent.com/u/79579164?s=400&u=2d32d51075ebfd7e1ca5489b27952a7de15cdb49&v=4" alt='logo' />
+            <div class="title">
+                <h1>Baxtableep</h1>
+                <div class="icons">
+                    <img id='icon' class='github' src='https://logos-download.com/wp-content/uploads/2016/09/GitHub_logo.png' style="height: 20px" />
+                    <img id='icon' class='discord' src='https://i1.wp.com/tctgaming.com/wp-content/uploads/2018/02/discord-logo.png?w=1600&ssl=1' style="height: 22px">
+                </div>
+            </div>
+        </div>
+        <form id="form">
+            <textarea name="body" id="body" wrap="soft" maxlength="240" placeholder="Enter Some Text To Be Tested..."></textarea>
+            <input type="button" value="Submit" onclick="postData()">
+        </form>
+
+        <div id="responses">
+
+        </div>
+
+        <div class="info">
+            <h3>How it works</h3>
+            Baxtableep does not use an explicit word list and is instead trained on over 150 thousand examples of profane and clean text to identify similarities between profane strings through a bag of worlds model. <br/> <br/> The bag-of-words model
+            is a simplifying representation used in natural language processing and information retrieval (IR). In this model, a text (such as a sentence or a document) is represented as the bag (multiset) of its words, disregarding grammar and even word
+            order but keeping multiplicity <br/> <br/> Further Reading - <a href="https://github.com/rabbitminers/Baxtableep">GitHub</a>
+            <br/> <br/>
+        </div>
+    </div>
+
+    <script>
+        const postData = () => {
+            const form = document.getElementById('form');
+            const formData = new FormData(form);
+
+            fetch('/submit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        response.text().then(text => {
+                            alert(text)
+                            var parentElement = document.querySelector('#responses');
+                            var newDiv = document.createElement('div');
+
+                            const json = JSON.parse(text)
+                            isProfane = !!json.isProfane;
+                            probability = parseFloat((json.probability).toFixed(5))
+                            body = json.body
+
+                            if (body.length > 20)
+                                body = body.substring(0, 20) + '...'
+
+                            newDiv.classList.add('response');
+                            newDiv.innerHTML = '<b>' + body + '</b>' + '<br/> Is Profane: ' + isProfane + '<br/> Probability: ' + probability;
+                            parentElement.appendChild(newDiv);
+                        });
+                        form.reset();
+                    } else {
+                        console.error(response.body);
+                        alert('Submission failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error.body);
+                    alert('Submission failed: ' + error);
+                });
+        };
+    </script>
+</body>
+
+</html>
